@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String         @id @default(uuid())
+  wallet        String?        @unique
+  email         String?        @unique
+  role          Role           @default(USER)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  prompts       Prompt[]
+  usages        Usage[]
+  subscription  Subscription?
+  feedItems     Feed[]
+
+  @@map("users")
+}
+
+model Prompt {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  input      String   @db.Text
+  optimized  String   @db.Text
+  tokens     Int      @default(0)
+  model      String   @default("gpt-4o-mini")
+  cost       Float    @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([userId])
+  @@map("prompts")
+}
+
+model Usage {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokensUsed  Int      @default(0)
+  model       String
+  cost        Float    @default(0)
+  endpoint    String   @default("optimize")
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+  @@map("usage")
+}
+
+model Subscription {
+  id         String             @id @default(uuid())
+  userId     String             @unique
+  user       User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan       SubscriptionPlan   @default(FREE)
+  status     SubscriptionStatus @default(ACTIVE)
+  stripeId   String?
+  currentPeriodEnd DateTime?
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+
+  @@map("subscriptions")
+}
+
+model Feed {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content         String   @db.Text
+  castHash        String?  @unique
+  engagementScore Float    @default(0)
+  likes           Int      @default(0)
+  recasts         Int      @default(0)
+  replies         Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId])
+  @@index([engagementScore])
+  @@map("feed")
+}
+
+enum Role {
+  USER
+  DEVELOPER
+  ADMIN
+}
+
+enum SubscriptionPlan {
+  FREE
+  PRO
+  ENTERPRISE
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  PAST_DUE
+  TRIALING
+}
