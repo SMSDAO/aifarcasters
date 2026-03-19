@@ -25,6 +25,10 @@ export async function handleCreateCheckout(request: Request): Promise<Response> 
     return Response.json({ error: 'Validation error', details: parseResult.error.flatten() }, { status: 422 });
   }
 
-  const checkoutUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/dashboard?plan=${parseResult.data.plan}`;
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+  if (!appUrl && process.env.NODE_ENV === 'production') {
+    return Response.json({ error: 'Server configuration error: NEXT_PUBLIC_APP_URL is not set' }, { status: 500 });
+  }
+  const checkoutUrl = `${appUrl ?? 'http://localhost:3000'}/dashboard?plan=${parseResult.data.plan}`;
   return Response.json({ success: true, checkoutUrl });
 }
