@@ -9,14 +9,15 @@ contextBridge.exposeInMainWorld('electron', {
   },
   send: (channel, data) => {
     const allowedChannels = ['app:minimize', 'app:maximize', 'app:close'];
-    if (allowedChannels.includes(channel)) {
-      ipcRenderer.send(channel, data);
-    }
+    if (!allowedChannels.includes(channel)) return;
+    // Only allow serializable primitives/plain objects as data
+    if (data !== undefined && (typeof data === 'function' || typeof data === 'symbol')) return;
+    ipcRenderer.send(channel, data);
   },
   receive: (channel, func) => {
     const allowedChannels = ['app:update-available', 'app:theme-changed'];
-    if (allowedChannels.includes(channel)) {
-      ipcRenderer.on(channel, (event, ...args) => func(...args));
-    }
+    if (!allowedChannels.includes(channel)) return;
+    if (typeof func !== 'function') return;
+    ipcRenderer.on(channel, (_event, ...args) => func(...args));
   },
 });
