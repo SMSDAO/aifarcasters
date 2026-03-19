@@ -13,12 +13,8 @@ function log(msg: string) { console.log(`[sync] ${msg}`); }
 function warn(msg: string) { console.warn(`[sync] ⚠️  ${msg}`); }
 function success(msg: string) { console.log(`[sync] ✅ ${msg}`); }
 
-function run(cmd: string, cwd = ROOT) {
-  try {
-    execSync(cmd, { cwd, stdio: 'inherit' });
-  } catch (err) {
-    warn(`Command failed: ${cmd}`);
-  }
+function run(cmd: string, cwd = ROOT): void {
+  execSync(cmd, { cwd, stdio: 'inherit' });
 }
 
 async function syncEnv() {
@@ -34,10 +30,10 @@ async function syncEnv() {
 
 async function generateDbTypes() {
   log('Generating Prisma client types...');
-  const dbPath = path.join(ROOT, 'packages/db');
-  
-  if (fs.existsSync(path.join(dbPath, 'prisma/schema.prisma'))) {
-    run('npx prisma generate', dbPath);
+  const schemaPath = path.join(ROOT, 'packages/db/prisma/schema.prisma');
+
+  if (fs.existsSync(schemaPath)) {
+    run('pnpm --filter @aifarcasters/db db:generate');
     success('Prisma types generated');
   } else {
     warn('packages/db/prisma/schema.prisma not found, skipping');
@@ -61,11 +57,29 @@ async function validateContracts() {
 
 async function main() {
   log('Starting AiFarcaster monorepo sync...\n');
-  
-  await syncEnv();
-  await generateDbTypes();
-  await validateContracts();
-  
+
+  let failed = false;
+
+  const steps: Array<[string, () => Promise<void>]> = [
+    ['syncEnv', syncEnv],
+    ['generateDbTypes', generateDbTypes],
+    ['validateContracts', validateContracts],
+  ];
+
+  for (const [name, step] of steps) {
+    try {
+      await step();
+    } catch (err) {
+      console.error(`[sync] ❌ Step '${name}' failed:`, err);
+      failed = true;
+    }
+  }
+
+  if (failed) {
+    console.error('\n❌ Sync completed with errors. See above for details.');
+    process.exit(1);
+  }
+
   console.log('\n✅ Sync complete!');
 }
 

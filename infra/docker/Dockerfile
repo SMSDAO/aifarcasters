@@ -15,7 +15,7 @@ COPY packages/ai/package.json ./packages/ai/
 COPY packages/web3/package.json ./packages/web3/
 COPY packages/api/package.json ./packages/api/
 
-RUN pnpm install --frozen-lockfile --filter web...
+RUN pnpm install --filter web...
 
 FROM node:20-alpine AS builder
 RUN npm install -g pnpm@9

@@ -8,8 +8,22 @@ export interface SessionPayload {
   exp?: number;
 }
 
+// Development-only fallback secret — memoized to avoid repeated encoding
+const DEV_FALLBACK_SECRET = new TextEncoder().encode(
+  'dev-only-secret-DO-NOT-USE-IN-PRODUCTION',
+);
+
 function getSecret(): Uint8Array {
-  const secret = process.env.NEXTAUTH_SECRET ?? process.env.JWT_SECRET ?? 'dev-secret-change-in-production';
+  const secret = process.env.NEXTAUTH_SECRET ?? process.env.JWT_SECRET;
+  if (!secret) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error(
+        '[auth/session] NEXTAUTH_SECRET or JWT_SECRET must be set in production. ' +
+        'Generate one with: openssl rand -base64 32',
+      );
+    }
+    return DEV_FALLBACK_SECRET;
+  }
   return new TextEncoder().encode(secret);
 }
 

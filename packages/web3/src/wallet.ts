@@ -1,4 +1,4 @@
-import { type Address, isAddress } from 'viem';
+import { type Address, isAddress, getAddress } from 'viem';
 
 export function isValidAddress(address: string): address is Address {
   return isAddress(address);
@@ -11,5 +11,5 @@ export function shortenAddress(address: string, chars = 4): string {
 
 export function normalizeAddress(address: string): Address {
   if (!isValidAddress(address)) throw new Error(`Invalid address: ${address}`);
-  return address.toLowerCase() as Address;
+  return getAddress(address);
 }

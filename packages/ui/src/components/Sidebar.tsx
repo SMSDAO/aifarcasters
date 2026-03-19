@@ -21,6 +21,7 @@ export function Sidebar({ items, className }: SidebarProps) {
         <a
           key={item.href}
           href={item.href}
+          aria-current={item.active ? 'page' : undefined}
           className={clsx(
             'flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors',
             item.active
