@@ -1,0 +1,21 @@
+{
+  "name": "@aifarcasters/api",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src/"
+  },
+  "dependencies": {
+    "@aifarcasters/ai": "workspace:*",
+    "@aifarcasters/auth": "workspace:*",
+    "@aifarcasters/core": "workspace:*",
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0",
+    "@types/node": "^22.0.0"
+  }
+}

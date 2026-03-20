@@ -1,0 +1,20 @@
+{
+  "buildCommand": "cd ../.. && pnpm build --filter web",
+  "outputDirectory": "apps/web/.next",
+  "devCommand": "cd ../.. && pnpm dev --filter web",
+  "installCommand": "pnpm install",
+  "framework": "nextjs",
+  "env": {
+    "NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID": "@walletconnect-project-id",
+    "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY": "@stripe-publishable-key",
+    "NEXT_PUBLIC_PAYMENT_RECEIVER_ADDRESS": "@payment-receiver-address",
+    "STRIPE_SECRET_KEY": "@stripe-secret-key",
+    "NEXT_PUBLIC_SUPABASE_URL": "@supabase-url",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "@supabase-anon-key",
+    "SUPABASE_SERVICE_ROLE_KEY": "@supabase-service-role-key",
+    "OPENAI_API_KEY": "@openai-api-key",
+    "NEXTAUTH_SECRET": "@nextauth-secret",
+    "UPSTASH_REDIS_REST_URL": "@upstash-redis-rest-url",
+    "UPSTASH_REDIS_REST_TOKEN": "@upstash-redis-rest-token"
+  }
+}
